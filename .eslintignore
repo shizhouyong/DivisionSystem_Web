@@ -1,2 +1,3 @@
 build/build.js
 client/views/*
+client/components/*

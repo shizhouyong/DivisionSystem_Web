@@ -88,4 +88,5 @@ $fa-font-path: '~font-awesome/fonts/';
     }
   }
 }
+
 </style>

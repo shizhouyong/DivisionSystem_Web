@@ -8,7 +8,8 @@ export default {
   name: '账号管理',
   meta: {
     icon: 'fa-user',
-    expanded: false
+    expanded: false,
+    limit: 1
   },
   children: [
     {
@@ -17,6 +18,7 @@ export default {
       meta: {
         label: '我的账号'
       },
+      limit: 2,
       component: lazyLoading('account/Stu')
     },
     {
@@ -25,6 +27,7 @@ export default {
       meta: {
         label: '我的账号'
       },
+      limit: 4,
       component: lazyLoading('account/Teacher')
     },
     {
@@ -33,6 +36,7 @@ export default {
       meta: {
         label: '所有账号'
       },
+      limit: 8,
       component: lazyLoading('account/All')
     }
   ]

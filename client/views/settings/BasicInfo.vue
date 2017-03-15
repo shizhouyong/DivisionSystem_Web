@@ -50,7 +50,9 @@
               <td><a href="javascript:" @click="removeCategory(category.name)">删除</a></td>
             </tr>
             <tr class="add_category_tr" :class="{add_category_tr_not_show:categoryNotShow}">
-              <td class="add_category_td_1"><input class="input is-success addItem" type="text" placeholder="请输入大类" v-model="new_item" @keyup.enter="saveCategory(new_item)"></td>
+              <td class="add_category_td_1">
+                <input class="input is-success addItem" type="text" placeholder="请输入大类" v-model="new_item" @keyup.enter="saveCategory(new_item)">
+              </td>
               <td>
                 <button class="button is-success addItem-btn" @click="saveCategory(new_item)">保存</button>
               </td>
@@ -105,27 +107,9 @@
 
 <script>
 import Vue from 'vue'
-import Message from 'vue-bulma-message'
-const MessageComponent = Vue.extend(Message)
-
-const openMessage = (propsData = {
-  title: '',
-  message: '',
-  type: '',
-  direction: '',
-  duration: 1500,
-  container: '.messages'
-}) => {
-  return new MessageComponent({
-    el: document.createElement('div'),
-    propsData
-  })
-}
+import Store from '../store'
 
   export default{
-    components: {
-      Message
-    },
     data () {
       return {
         grades: [],
@@ -143,17 +127,20 @@ const openMessage = (propsData = {
     },
     methods: {
       getGrades: function () {
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get', {'type': 'GRADE'}).then(response => {
+        var ss = Store.fetchSession();
+        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
             this.grades = response.data.systemInfoList
         })
       },
       getCategories: function () {
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get', {'type': 'CATEGORY'}).then(response => {
+        var ss = Store.fetchSession();
+        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
             this.categories = response.data.systemInfoList
         })
       },
       getMajors: function () {
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get', {'type': 'MAJOR'}).then(response => {
+        var ss = Store.fetchSession();
+        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'MAJOR'}).then(response => {
             this.majors = response.data.systemInfoList
         })
       },
@@ -189,12 +176,13 @@ const openMessage = (propsData = {
           alert("请输入年级！");
           return;
         }
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/grade/add', {'grade': new_item}).then(response => {
+        var ss = Store.fetchSession();
+        this.$http.post('http://127.0.0.1:8888/jg/v/system/grade/add?ss=' + ss, {'grade': new_item}).then(response => {
             if (response.data.retCode === 0) {
                 this.getGrades()
-                this.openAddMessage('success')
+                this.successMsg("新增成功！");
             } else {
-                this.openAddMessage('warning')
+                this.errorMsg('新增失败！');
             }
         })
         this.gradeNotShow = true
@@ -207,12 +195,13 @@ const openMessage = (propsData = {
           alert("请输入专业大类！");
           return;
         }
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/category/add', {'name': new_item}).then(response => {
+        var ss = Store.fetchSession();
+        this.$http.post('http://127.0.0.1:8888/jg/v/system/category/add?ss=' + ss, {'name': new_item}).then(response => {
             if (response.data.retCode === 0) {
                 this.getCategories()
-                this.openAddMessage('success')
+                this.successMsg("新增成功！");
             } else {
-                this.openAddMessage('warning')
+                this.errorMsg('新增失败！');
             }
         })
         this.categoryNotShow = true
@@ -229,12 +218,13 @@ const openMessage = (propsData = {
           alert('请选择专业大类！');
           return;
         }
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/major/add', {'name': new_item, 'category': this.category_choose}).then(response => {
+        var ss = Store.fetchSession();
+        this.$http.post('http://127.0.0.1:8888/jg/v/system/major/add?ss=' + ss, {'name': new_item, 'category': this.category_choose}).then(response => {
             if (response.data.retCode === 0) {
                 this.getMajors()
-                this.openAddMessage('success')
+                this.successMsg("新增成功！");
             } else {
-                this.openAddMessage('warning')
+                this.errorMsg('新增失败！');
             }
         })
         this.majorNotShow = true
@@ -243,70 +233,88 @@ const openMessage = (propsData = {
         this.category_choose = ''
       },
       removeGrade: function (grade) {
-        confirm("是否删除年级："+grade)
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/delete', {'type': 'GRADE', "name": grade}).then(response => {
+        this.$confirm('此操作将永久删除该年级, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var ss = Store.fetchSession();
+          this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/delete?ss=' + ss, {'type': 'GRADE', "name": grade}).then(response => {
             if (response.data.retCode == 0) {
                 this.getGrades()
-                this.openDeleteMessage('success')
+                this.successMsg("删除成功！");
             } else {
-                this.openDeleteMessage('warning')
+                this.errorMsg('删除失败！');
             }
-        })
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+
       },
       removeCategory: function (category) {
-        confirm("是否删除大类："+category)
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/delete', {'type': 'CATEGORY', "name": category}).then(response => {
+        this.$confirm('此操作将永久删除该大类, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var ss = Store.fetchSession();
+          this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/delete?ss=' + ss, {'type': 'CATEGORY', "name": category}).then(response => {
             if (response.data.retCode == 0) {
                 this.getCategories()
-                this.openDeleteMessage('success')
+                this.successMsg("删除成功！");
             } else {
-                this.openDeleteMessage('warning')
+                this.errorMsg('删除失败！');
             }
-        })
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+
       },
       removeMajor: function (major) {
-        confirm("是否删除专业："+major)
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/delete', {'type': 'MAJOR', "name": major}).then(response => {
-            if (response.data.retCode == 0) {
-                this.getMajors()
-                this.openDeleteMessage('success')
-            } else {
-                this.openDeleteMessage('warning')
-            }
-        })
+        this.$confirm('此操作将永久删除该专业, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var ss = Store.fetchSession();
+          this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/delete?ss=' + ss, {'type': 'MAJOR', "name": major}).then(response => {
+              if (response.data.retCode == 0) {
+                  this.getMajors()
+                  this.successMsg("删除成功！");
+              } else {
+                  this.errorMsg('删除失败！');
+              }
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
       },
       chooseCategory: function (id) {
         alert(id);
       },
-      openAddMessage (type) {
-        if (type === 'success') {
-          openMessage({
-            title : '消息',
-            message : '添加成功!',
-            type : type
-          })
-        } else {
-          openMessage({
-            title : '消息',
-            message : '添加失败!',
-            type : type
-          })
-        }
+      successMsg(msg) {
+        this.$notify({
+          title: '成功',
+          message: msg,
+          type: 'success'
+        });
       },
-      openDeleteMessage (type) {
-        if (type === 'success') {
-          openMessage({
-            title : '消息',
-            message : '删除成功!',
-            type : type
-          })
-        } else {
-          openMessage({
-            title : '消息',
-            message : '删除失败!',
-            type : type
-          })
-        }
+      errorMsg(msg) {
+        this.$notify.error({
+          title: '错误',
+          message: msg
+        });
       }
     },
     created: function() {

@@ -8,7 +8,8 @@ export default {
   name: '基础设置',
   meta: {
     icon: 'fa-cog',
-    expanded: false
+    expanded: false,
+    limit: 8
   },
   children: [
     {
@@ -17,6 +18,7 @@ export default {
       meta: {
         label: '基础信息'
       },
+      limit: 1,
       component: lazyLoading('settings/BasicInfo')
     },
     {
@@ -25,6 +27,7 @@ export default {
       meta: {
         label: '教师信息'
       },
+      limit: 1,
       component: lazyLoading('settings/TeacherInfo')
     }
   ]

@@ -7,8 +7,9 @@ import lazyLoading from './lazyLoading'
 export default {
   name: '分流志愿',
   meta: {
-    icon: 'fa fa-file-excel-o',
-    expanded: false
+    icon: 'fa fa-envelope-open-o',
+    expanded: false,
+    limit: 1
   },
   children: [
     {
@@ -17,15 +18,17 @@ export default {
       meta: {
         label: '志愿填报'
       },
+      limit: 2,
       component: lazyLoading('volunteer/Fill')
     },
     {
       name: '志愿查询',
-      path: '/volunteer/search',
+      path: '/volunteer/batchQuery',
       meta: {
         label: '志愿查询'
       },
-      component: lazyLoading('volunteer/Search')
+      limit: 4,
+      component: lazyLoading('volunteer/BatchQuery')
     }
   ]
 }

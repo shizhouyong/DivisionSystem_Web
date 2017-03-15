@@ -8,7 +8,8 @@ export default {
   name: '学生信息',
   meta: {
     icon: 'fa-info',
-    expanded: false
+    expanded: false,
+    limit: 4
   },
   children: [
     {
@@ -17,6 +18,7 @@ export default {
       meta: {
         label: '学生信息导入'
       },
+      limit: 1,
       component: lazyLoading('stuInfo/Import')
     },
     {
@@ -25,6 +27,7 @@ export default {
       meta: {
         label: '当前分流周期'
       },
+      limit: 1,
       component: lazyLoading('stuInfo/Now')
     },
     {
@@ -33,6 +36,7 @@ export default {
       meta: {
         label: '历史数据库'
       },
+      limit: 1,
       component: lazyLoading('stuInfo/History')
     }
   ]

@@ -6,7 +6,7 @@
           <div class="block">
             <el-collapse class="collapse_header">
               <el-collapse-item title="筛选条件">
-                <el-form :model="selectForm" ref="selectForm" label-width="60px" class="demo-dynamic">
+                <el-form :model="selectForm" ref="selectForm" label-width="80px" class="demo-dynamic">
                   <el-row :gutter="24">
                     <el-col :span="6">
                       <el-form-item label="学号" prop="number">
@@ -19,8 +19,8 @@
                       </el-form-item>
                     </el-col>
                     <el-col :span="6">
-                      <el-form-item label="原班级" prop="originClass">
-                        <el-input v-model="selectForm.originClass" placeholder="请输入原班级"></el-input>
+                      <el-form-item label="原班级" prop="originalClass">
+                        <el-input v-model="selectForm.originalClass" placeholder="请输入原班级"></el-input>
                       </el-form-item>
                     </el-col>
                     <el-col :span="6">
@@ -36,8 +36,7 @@
                           <el-option
                             v-for="category in categories"
                             :label="category.name"
-                            :value="category.id">
-                          </el-option>
+                            :value="category.id"></el-option>
                         </el-select>
                       </el-form-item>
                     </el-col>
@@ -47,8 +46,7 @@
                           <el-option
                             v-for="grade in grades"
                             :label="grade.name"
-                            :value="grade.id">
-                          </el-option>
+                            :value="grade.id"></el-option>
                         </el-select>
                       </el-form-item>
                     </el-col>
@@ -70,8 +68,38 @@
                     </el-col>
                   </el-row>
                   <el-row :gutter="24">
-                    <el-col :span="5" :offset="19">
-                      <el-form-item class="el-form-item-my">
+                    <el-col :span="6">
+                      <el-form-item label="第一志愿" prop="firstChoose">
+                        <el-select v-model="selectForm.firstChoose" placeholder="请选择第一志愿">
+                          <el-option v-for="major in majors"
+                                     :label="major.name"
+                                     :value="major.id">
+                          </el-option>
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="6">
+                      <el-form-item label="第二志愿" prop="secondChoose">
+                        <el-select v-model="selectForm.secondChoose" placeholder="请选择第二志愿">
+                          <el-option v-for="major in majors"
+                                     :label="major.name"
+                                     :value="major.id">
+                          </el-option>
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="6">
+                      <el-form-item label="第三志愿" prop="thirdChoose">
+                        <el-select v-model="selectForm.thirdChoose" placeholder="请选择第三志愿">
+                          <el-option v-for="major in majors"
+                                     :label="major.name"
+                                     :value="major.id">
+                          </el-option>
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="5" :offset="1">
+                      <el-form-item>
                         <el-button type="primary" @click="query">查询</el-button>
                         <el-button @click="resetForm('selectForm')">重置</el-button>
                       </el-form-item>
@@ -81,70 +109,32 @@
               </el-collapse-item>
             </el-collapse>
             <el-table
-              :data="students"
+              :data="volunteers"
               border
               style="width: 100%">
               <el-table-column
                 prop="number"
                 label="学号"
-                width="160"
                 sortable>
               </el-table-column>
-
               <el-table-column
                 prop="name"
-                label="姓名"
-                width="100">
+                label="姓名">
               </el-table-column>
               <el-table-column
-                prop="gPA"
-                label="平均学分绩点"
-                width="150"
-                sortable>
+                prop="firstChoose"
+                label="第一志愿">
               </el-table-column>
               <el-table-column
-                prop="stuFrom"
-                label="生源地"
-                width="120">
+                prop="secondChoose"
+                label="第二志愿">
               </el-table-column>
               <el-table-column
-                prop="division"
-                label="文理科"
-                width="100">
+                prop="thirdChoose"
+                label="第三志愿">
               </el-table-column>
               <el-table-column
-                prop="entranceScore"
-                label="高考成绩"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                prop="admissionScore"
-                label="生源省高考录取线"
-                width="180">
-              </el-table-column>
-              <el-table-column
-                prop="sex"
-                label="性别"
-                width="80">
-              </el-table-column>
-              <el-table-column
-                prop="originalClass"
-                label="原班级"
-                width="180">
-              </el-table-column>
-              <el-table-column
-                prop="dorm"
-                label="寝室"
-                width="160">
-              </el-table-column>
-              <el-table-column
-                prop="note"
-                label="备注"
-                width="180">
-              </el-table-column>
-              <el-table-column
-                label="操作"
-                width="120">
+                label="操作">
                 <template scope="scope">
                   <el-button type="text" size="small">查看</el-button>
                   <el-button type="text" size="small">编辑</el-button>
@@ -176,18 +166,26 @@ export default {
       current:1,
       showItem:15,
       allpage:1,
-      students: [],
+      volunteers: [],
       grades: [],
       categories: [],
+      majors: [],
       selectForm: {
-        number: '',
-        name: '',
-        originClass: '',
-        sex: '',
-        stuFrom: '',
-        division: '',
-        category: '',
-        grade: ''
+        number: null,
+        name: null,
+        originalClass: null,
+        sex: null,
+        stuFrom: null,
+        division: null,
+        category: null,
+        grade: null,
+        firstChoose: null,
+        secondChoose: null,
+        thirdChoose:null
+      },
+      order: {
+        item: null,
+        sort: null
       }
     }
   },
@@ -214,19 +212,6 @@ export default {
      }
   },
   methods:{
-    goto:function(index){
-      if(index == this.current) return;
-        this.current = index;
-        //这里可以发送ajax请求
-      this.getStudents(index);
-    },
-    getStudents:function(page){
-      var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/stuInfo/list?ss=' + ss, {'order': {'from': (page-1)*15, 'size':15}}).then(response => {
-          this.students = response.data.students
-          this.allpage = Math.ceil(response.data.total / 15)
-      });
-    },
     getGrades: function () {
       var ss = Store.fetchSession();
       this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
@@ -239,17 +224,36 @@ export default {
           this.categories = response.data.systemInfoList
       })
     },
+    getMajors: function () {
+      var ss = Store.fetchSession();
+      this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'MAJOR'}).then(response => {
+          this.majors = response.data.systemInfoList
+      })
+    },
+    goto: function(index){
+      if(index == this.current) return;
+        this.current = index;
+        //这里可以发送ajax请求
+    },
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
+    getMyVolunteer: function () {
+      var ss = Store.fetchSession();
+      this.$http.post('http://127.0.0.1:8888/jg/v/volunteer/get/list?ss=' + ss, {'filter': this.selectForm, 'order': this.order}).then(response => {
+          this.volunteers = response.data.volunteers;
+          this.allpage = Math.ceil(response.data.total / this.showItem);
+      })
+    },
     query() {
-      alert('提交');
+      this.getMyVolunteer();
     }
   },
   created: function() {
     this.getGrades()
     this.getCategories()
-    this.getStudents()
+    this.getMajors()
+    this.getMyVolunteer();
   }
 }
 </script>
@@ -283,17 +287,13 @@ export default {
     display:inline-block;
     border:1px solid #ddd;
     background:#fff;
-    color:#1ACBA3;
+    color:#20bc56;
   }
   .pagination li a:hover{
     background:#eee;
   }
   .pagination li.active a{
-    background:#1ACBA3;
+    background:#20bc56;
     color:#fff;
-  }
-
-  .el-form-item-my {
-    margin-bottom: 10px;
   }
 </style>
