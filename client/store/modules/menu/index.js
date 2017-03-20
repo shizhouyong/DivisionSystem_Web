@@ -4,6 +4,7 @@ import stuInfo from './stuInfo'
 import volunteer from './volunteer'
 import account from './account'
 import shunt from './shunt'
+import accountManage from './accountManage'
 
 // show: meta.label -> name
 // name: component name
@@ -15,6 +16,7 @@ const state = {
     stuInfo,
     volunteer,
     shunt,
+    accountManage,
     account
   ]
 }

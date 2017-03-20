@@ -111,13 +111,13 @@
     methods: {
       getPositions: function () {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'POSITION'}).then(response => {
+        this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'POSITION'}).then(response => {
             this.positions = response.data.systemInfoList
         })
       },
       getTeachers: function () {
         var ss = Store.fetchSession();
-        this.$http.get('http://127.0.0.1:8888/jg/v/system/teacher/list?ss=' + ss).then(response => {
+        this.$http.get('http://division.backend:8888/jg/v/system/teacher/list?ss=' + ss).then(response => {
             this.teachers = response.data.teacherList
         })
       },
@@ -152,7 +152,7 @@
           type: 'warning'
         }).then(() => {
           var ss = Store.fetchSession();
-          this.$http.get('http://127.0.0.1:8888/jg/v/system/teacher/delete/'+ number +'?ss=' + ss).then(response => {
+          this.$http.get('http://division.backend:8888/jg/v/system/teacher/delete/'+ number +'?ss=' + ss).then(response => {
               if (response.data.retCode == 0) {
                   this.getTeachers();
                   this.successMsg('删除教师信息成功！');
@@ -185,7 +185,7 @@
       },
       addTeacher: function () {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/teacher/add?ss=' + ss,
+        this.$http.post('http://division.backend:8888/jg/v/system/teacher/add?ss=' + ss,
           {'name': this.new_teacher.name,'number': this.new_teacher.number, 'position': this.new_teacher.position}).then(response => {
             if (response.data.retCode === 0) {
                 this.getTeachers()
@@ -201,7 +201,7 @@
       },
       modifyTeacher: function () {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/teacher/update?ss=' + ss,
+        this.$http.post('http://division.backend:8888/jg/v/system/teacher/update?ss=' + ss,
           {'name': this.new_teacher.name,'number': this.new_teacher.number, 'position': this.new_teacher.position}).then(response => {
             if (response.data.retCode === 0) {
                 this.getTeachers()
@@ -217,7 +217,7 @@
       },
       savePosition: function (new_item) {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/position/add?ss=' + ss, {'name': new_item}).then(response => {
+        this.$http.post('http://division.backend:8888/jg/v/system/position/add?ss=' + ss, {'name': new_item}).then(response => {
             if (response.data.retCode === 0) {
                 this.getPositions();
                 this.successMsg('新增部门成功！');
@@ -237,7 +237,7 @@
           type: 'warning'
         }).then(() => {
           var ss = Store.fetchSession();
-          this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/delete?ss=' + ss, {'type': 'POSITION', "name": position}).then(response => {
+          this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/delete?ss=' + ss, {'type': 'POSITION', "name": position}).then(response => {
               if (response.data.retCode == 0) {
                   this.getPositions();
                   this.successMsg('删除部门成功！');

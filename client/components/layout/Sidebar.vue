@@ -125,6 +125,7 @@ export default {
     },
 
     getLimit () {
+
       this.limit = Store.fetchLimit()
     }
   },

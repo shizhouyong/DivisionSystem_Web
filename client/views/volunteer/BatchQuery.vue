@@ -36,7 +36,7 @@
                           <el-option
                             v-for="category in categories"
                             :label="category.name"
-                            :value="category.id"></el-option>
+                            :value="category.id"/>
                         </el-select>
                       </el-form-item>
                     </el-col>
@@ -46,7 +46,7 @@
                           <el-option
                             v-for="grade in grades"
                             :label="grade.name"
-                            :value="grade.id"></el-option>
+                            :value="grade.id"/>
                         </el-select>
                       </el-form-item>
                     </el-col>
@@ -108,33 +108,13 @@
                 </el-form>
               </el-collapse-item>
             </el-collapse>
-            <el-table
-              :data="volunteers"
-              border
-              style="width: 100%">
-              <el-table-column
-                prop="number"
-                label="学号"
-                sortable>
-              </el-table-column>
-              <el-table-column
-                prop="name"
-                label="姓名">
-              </el-table-column>
-              <el-table-column
-                prop="firstChoose"
-                label="第一志愿">
-              </el-table-column>
-              <el-table-column
-                prop="secondChoose"
-                label="第二志愿">
-              </el-table-column>
-              <el-table-column
-                prop="thirdChoose"
-                label="第三志愿">
-              </el-table-column>
-              <el-table-column
-                label="操作">
+            <el-table :data="volunteers" border style="width: 100%" v-loading="loading" element-loading-text="拼命加载中">
+              <el-table-column prop="number" label="学号" sortable/>
+              <el-table-column prop="name" label="姓名"/>
+              <el-table-column prop="firstChoose" label="第一志愿"/>
+              <el-table-column prop="secondChoose" label="第二志愿"/>
+              <el-table-column prop="thirdChoose" label="第三志愿"/>
+              <el-table-column label="操作">
                 <template scope="scope">
                   <el-button type="text" size="small">查看</el-button>
                   <el-button type="text" size="small">编辑</el-button>
@@ -170,6 +150,7 @@ export default {
       grades: [],
       categories: [],
       majors: [],
+      loading: true,
       selectForm: {
         number: null,
         name: null,
@@ -214,19 +195,19 @@ export default {
   methods:{
     getGrades: function () {
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
           this.grades = response.data.systemInfoList
       })
     },
     getCategories: function () {
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
           this.categories = response.data.systemInfoList
       })
     },
     getMajors: function () {
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'MAJOR'}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'MAJOR'}).then(response => {
           this.majors = response.data.systemInfoList
       })
     },
@@ -234,15 +215,18 @@ export default {
       if(index == this.current) return;
         this.current = index;
         //这里可以发送ajax请求
+        this.getMyVolunteer(index);
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
-    getMyVolunteer: function () {
+    getMyVolunteer: function (page) {
+    this.loading = true
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/volunteer/get/list?ss=' + ss, {'filter': this.selectForm, 'order': this.order}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/volunteer/get/list?ss=' + ss, {'filter': this.selectForm, 'order': {'from': (page-1)*this.showItem, 'size':this.showItem}}).then(response => {
           this.volunteers = response.data.volunteers;
           this.allpage = Math.ceil(response.data.total / this.showItem);
+          this.loading = false
       })
     },
     query() {
@@ -253,7 +237,7 @@ export default {
     this.getGrades()
     this.getCategories()
     this.getMajors()
-    this.getMyVolunteer();
+    this.getMyVolunteer(1);
   }
 }
 </script>
@@ -287,13 +271,13 @@ export default {
     display:inline-block;
     border:1px solid #ddd;
     background:#fff;
-    color:#20bc56;
+    color:#1ACBA3;
   }
   .pagination li a:hover{
     background:#eee;
   }
   .pagination li.active a{
-    background:#20bc56;
+    background:#1ACBA3;
     color:#fff;
   }
 </style>

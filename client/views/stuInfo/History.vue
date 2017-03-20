@@ -222,20 +222,20 @@ export default {
     },
     getStudents:function(page){
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/stuInfo/list?ss=' + ss, {'order': {'from': (page-1)*15, 'size':15}}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/stuInfo/list?ss=' + ss, {'order': {'from': (page-1)*15, 'size':15}}).then(response => {
           this.students = response.data.students
           this.allpage = Math.ceil(response.data.total / 15)
       });
     },
     getGrades: function () {
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
           this.grades = response.data.systemInfoList
       })
     },
     getCategories: function () {
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
           this.categories = response.data.systemInfoList
       })
     },

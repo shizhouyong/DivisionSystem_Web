@@ -90,15 +90,27 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$http.post('http://127.0.0.1:8888/jg/user/login', {'number': this.ruleForm2.username, 'password': this.ruleForm2.pass}).then(response => {
+          this.$http.post('http://division.backend:8888/jg/user/login', {'number': this.ruleForm2.username, 'password': this.ruleForm2.pass}).then(response => {
             if (response.data.retCode === 0) {
-                alert('登陆成功！');
+                this.$message({
+                  message: '登陆成功！',
+                  type: 'success'
+                });
                 Store.save(response.data);
-                Store.savePhone(response.data.telePhone);
+                this.limit = response.data.limit;
+                if (typeof(response.data.telePhone) == "undefined") {
+                  Store.savePhone(0);
+                } else {
+                  Store.savePhone(response.data.telePhone);
+                }
                 this.close();
-            } else {
-                alert('登陆失败！');
+            } else if (response.data.retCode === 65537){
+                this.$message.error('您没有登录权限！');
                 this.resetForm('ruleForm2');
+            } else if (response.data.retCode === 65540){
+                this.$message.error('密码错误！');
+            } else if (response.data.retCode === 65538){
+                this.$message.error('不存在该用户');
             }
           })
 
@@ -108,6 +120,7 @@ export default {
         }
       });
     },
+
     resetForm(formName) {
       this.$refs[formName].resetFields();
     }

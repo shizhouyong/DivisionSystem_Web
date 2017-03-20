@@ -13,15 +13,6 @@ export default {
   },
   children: [
     {
-      name: '学生信息导入',
-      path: '/stuInfo/import',
-      meta: {
-        label: '学生信息导入'
-      },
-      limit: 1,
-      component: lazyLoading('stuInfo/Import')
-    },
-    {
       name: '当前分流周期',
       path: '/stuInfo/now',
       meta: {

@@ -40,6 +40,7 @@
                         <el-option label="待上线" value="1"></el-option>
                         <el-option label="上线中" value="2"></el-option>
                         <el-option label="已结束" value="3"></el-option>
+                        <el-option label="已公示" value="4"></el-option>
                       </el-select>
                     </el-form-item>
                   </el-col>
@@ -57,13 +58,19 @@
           </el-collapse>
 
           <div class="block" v-for='plan in plans'>
-            <span class="wrapper plan_oper_btn">
-              <el-button type="danger" size="small" v-if="plan.status == 1" @click="planOnline(plan.id)">上线</el-button>
-              <el-button type="warning" size="small" v-if="plan.status == 2" @click="planOffline(plan.id)">下线</el-button>
+            <span class="wrapper plan_oper_btn_left">
               <el-button type="success" size="small" v-if="plan.status == 2">进行中</el-button>
-              <el-button type="info" size="small" v-if="plan.status == 1">未激活</el-button>
-              <el-button type="danger" size="small" v-if="plan.status == 3">已结束</el-button>
+              <el-button size="small" v-if="plan.status == 1">未激活</el-button>
+              <el-button type="info" size="small" v-if="plan.status == 3">已结束</el-button>
+              <el-button type="primary" size="small" v-if="plan.status == 4">已公示</el-button>
+            </span>
+            <span class="wrapper plan_oper_btn_right">
+              <el-button type="info" size="small" v-if="plan.status == 1" @click="planOnline(plan.id)">发布</el-button>
+              <el-button type="warning" size="small" v-if="plan.status == 2" @click="planOffline(plan.id)">取消发布</el-button>
+              <el-button type="primary" size="small" v-if="plan.status == 2" @click="planOver(plan.id)">结束</el-button>
+              <el-button type="danger" size="small" v-if="plan.status == 1" @click="deletePlan(plan.id)">删除</el-button>
               <el-button :plain="true" type="danger" size="small" @click="updatePlan(plan)" v-if="plan.status == 1">修改</el-button>
+              <el-button type="warning" size="small" v-if="plan.status == 3" @click="publicity(plan.id)">公示</el-button>
             </span>
             <table class="table is-bordered">
               <thead>
@@ -188,7 +195,7 @@ import Store from '../store'
         plans: '',
         planForm: {
           id: '',
-          majors: '',
+          majors: [],
           majorAmount: '',
           categoryChoose: '',
           gradeChoose: '',
@@ -217,6 +224,73 @@ import Store from '../store'
       };
     },
     methods: {
+      deletePlan(id) {
+        this.$confirm('此操作将删除分流计划, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var ss = Store.fetchSession();
+          this.$http.post('http://division.backend:8888/jg/v/plan/delete/'+id+'?ss=' + ss).then(response => {
+            if (response.data.retCode == 0) {
+                this.getPlans();
+                this.successMsg("删除成功！");
+            } else {
+                this.errorMsg('删除失败！');
+            }
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除操作！'
+          });
+        });
+      },
+      publicity(id) {
+        this.$confirm('此操作将公示该分流结果, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var ss = Store.fetchSession();
+          this.$http.post('http://division.backend:8888/jg/v/plan/online?ss=' + ss, {'id': id, "oper": 4}).then(response => {
+            if (response.data.retCode == 0) {
+                this.getPlans();
+                this.successMsg("成功！");
+            } else {
+                this.errorMsg('失败！');
+            }
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消操作！'
+          });
+        });
+      },
+      planOver(id) {
+        this.$confirm('此操作将结束该分流, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var ss = Store.fetchSession();
+          this.$http.post('http://division.backend:8888/jg/v/plan/online?ss=' + ss, {'id': id, "oper": 3}).then(response => {
+            if (response.data.retCode == 0) {
+                this.getPlans();
+                this.successMsg("成功！");
+            } else {
+                this.errorMsg('失败！');
+            }
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消操作！'
+          });
+        });
+
+      },
       planOnline(id) {
         this.$confirm('此操作将上线分流计划, 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -224,7 +298,7 @@ import Store from '../store'
           type: 'warning'
         }).then(() => {
           var ss = Store.fetchSession();
-          this.$http.post('http://127.0.0.1:8888/jg/v/plan/online?ss=' + ss, {'id': id, "oper": 2}).then(response => {
+          this.$http.post('http://division.backend:8888/jg/v/plan/online?ss=' + ss, {'id': id, "oper": 2}).then(response => {
             if (response.data.retCode == 0) {
                 this.getPlans();
                 this.successMsg("上线成功！");
@@ -247,7 +321,7 @@ import Store from '../store'
           type: 'warning'
         }).then(() => {
           var ss = Store.fetchSession();
-          this.$http.post('http://127.0.0.1:8888/jg/v/plan/online?ss=' + ss, {'id': id, "oper": 1}).then(response => {
+          this.$http.post('http://division.backend:8888/jg/v/plan/online?ss=' + ss, {'id': id, "oper": 1}).then(response => {
             if (response.data.retCode == 0) {
                 this.getPlans();
                 this.successMsg("下线成功！");
@@ -283,8 +357,8 @@ import Store from '../store'
             var h = new Date(this.planForm.date2);
             var endTime = Date.parse(new Date(d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ' ' + h.getHours() + ':' + h.getMinutes() + ':' + h.getSeconds())) / 1000;
             var ss = Store.fetchSession()
-            if(this.planForm.id === 0){
-              this.$http.post('http://127.0.0.1:8888/jg/v/plan/add?ss='+ss,
+            if(this.planForm.id === ''){
+              this.$http.post('http://division.backend:8888/jg/v/plan/add?ss='+ss,
                  {'grade':this.planForm.gradeChoose,'category':this.planForm.categoryChoose,'endTime':endTime,'details':this.planForm.majors}).then(response => {
                 var retCode = response.data.retCode;
                 if (retCode === 0) {
@@ -297,7 +371,7 @@ import Store from '../store'
                 }
               })
             } else {
-               this.$http.post('http://127.0.0.1:8888/jg/v/plan/update?ss='+ss,
+               this.$http.post('http://division.backend:8888/jg/v/plan/update?ss='+ss,
                  {'id': this.planForm.id ,'grade':this.planForm.gradeChoose,'category':this.planForm.categoryChoose,'endTime':endTime,'details':this.planForm.majors}).then(response => {
                 var retCode = response.data.retCode;
                 if (retCode === 0) {
@@ -317,16 +391,11 @@ import Store from '../store'
         });
       },
       addMajor() {
-
-        if (this.planForm.majors === '') {
-          this.planForm.majors = [{name: '',classAmount: '',stuAmount: ''}]
-        } else {
-          this.planForm.majors.push({
-            name: '',
-            classAmount: '',
-            stuAmount: ''
-          });
-        }
+        this.planForm.majors.push({
+          id: '',
+          classAmount: '',
+          stuAmount: ''
+        });
       },
       successMsg(msg) {
         this.$notify({
@@ -343,31 +412,34 @@ import Store from '../store'
       },
       getGrades: function () {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
+        this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
             this.grades = response.data.systemInfoList
         })
       },
       getCategories: function () {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
+        this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
             this.categories = response.data.systemInfoList
         })
       },
       getMajors: function () {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'MAJOR'}).then(response => {
+        this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'MAJOR'}).then(response => {
             this.majors = response.data.systemInfoList
         })
       },
       getMajorsByCategory: function(categoryChoose) {
+        if (categoryChoose === '') {
+          return;
+        }
         var ss = Store.fetchSession();
-        this.$http.get('http://127.0.0.1:8888/jg/v/system/major/get/'+categoryChoose+'?ss=' + ss).then(response => {
+        this.$http.get('http://division.backend:8888/jg/v/system/major/get/'+categoryChoose+'?ss=' + ss).then(response => {
             this.majors = response.data.majorList
         })
       },
       getPlans: function () {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/plan/get/list?ss=' + ss, {'items': this.selectForm}).then(response => {
+        this.$http.post('http://division.backend:8888/jg/v/plan/get/list?ss=' + ss, {'items': this.selectForm}).then(response => {
             this.plans = response.data.planList
         })
       },
@@ -389,6 +461,15 @@ import Store from '../store'
       },
       resetForm(formName) {
         this.planForm.majors = [];
+        this.planForm = {
+          id: '',
+          majors: [],
+          majorAmount: '',
+          categoryChoose: '',
+          gradeChoose: '',
+          date1: '',
+          date2: ''
+        };
         this.$refs[formName].resetFields();
       },
       removeMajor(item) {
@@ -424,6 +505,16 @@ import Store from '../store'
     text-align: center;
     vertical-align: middle!important;
   }
+
+  .plan_oper_btn_left {
+    float: left;
+    margin-bottom: 10px;
+  }
+
+  .plan_oper_btn_right {
+    float: right;
+  }
+
   .plan_oper_btn button{
     margin-bottom: 8px;
 

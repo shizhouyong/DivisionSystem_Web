@@ -15,7 +15,7 @@
             </el-col>
             <el-col :span="16" :offset="4">
               <el-form-item>
-                <el-button type="success" @click="updatePassword()">提交</el-button>
+                <el-button type="info" @click="updatePassword()">提交</el-button>
                 <el-button @click="resetForm('ruleForm2')">重置</el-button>
               </el-form-item>
             </el-col>
@@ -35,8 +35,8 @@
               <el-input type="number" v-model.number="numberValidateForm.phone" auto-complete="off" :disabled="!showPhoneInput"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="success" @click="toggleShowPhone()" v-if="!showPhoneInput">修改</el-button>
-              <el-button type="success" @click="updatePhone()" v-if="showPhoneInput">提交</el-button>
+              <el-button type="info" @click="toggleShowPhone()" v-if="!showPhoneInput">{{btnText}}</el-button>
+              <el-button type="info" @click="updatePhone()" v-if="showPhoneInput">提交</el-button>
               <el-button @click="toggleShowPhone()" v-if="showPhoneInput">取消</el-button>
             </el-form-item>
           </el-form>
@@ -76,6 +76,7 @@ import Store from '../store'
             };
             return{
                 showPhoneInput : false,
+                btnText: '补充',
                 ruleForm2: {
                   pass: '',
                   checkPass: ''
@@ -96,7 +97,7 @@ import Store from '../store'
         methods: {
           updatePassword: function () {
             var ss = Store.fetchSession()
-            this.$http.post('http://127.0.0.1:8888/jg/v/user/password/update?ss='+ss, {'oldPassword': this.ruleForm2.pass, 'newPassword': this.ruleForm2.checkPass}).then(response => {
+            this.$http.post('http://division.backend:8888/jg/v/user/password/update?ss='+ss, {'oldPassword': this.ruleForm2.pass, 'newPassword': this.ruleForm2.checkPass}).then(response => {
               var retCode = response.data.retCode;
               if (retCode === 0) {
                   this.successMsg("密码更新成功！");
@@ -110,7 +111,7 @@ import Store from '../store'
           },
           updatePhone: function () {
             var ss = Store.fetchSession()
-            this.$http.post('http://127.0.0.1:8888/jg/v/stu/phone/update?ss='+ss, {'telePhone': this.numberValidateForm.phone}).then(response => {
+            this.$http.post('http://division.backend:8888/jg/v/stu/phone/update?ss='+ss, {'telePhone': this.numberValidateForm.phone}).then(response => {
               var retCode = response.data.retCode;
               if (retCode === 0) {
                   Store.savePhone(this.numberValidateForm.phone);
@@ -152,9 +153,11 @@ import Store from '../store'
             this.$refs[formName].resetFields();
           },
           showPhone() {
-            if (Store.fetchPhone() === '' || Store.fetchPhone() === null) {
+            let phone = Store.fetchPhone();
+            if (phone === '' || phone === null || typeof(phone)=="undefined") {
               return;
             }
+            this.btnText = "修改";
             this.numberValidateForm.phone = Store.fetchPhone();
           },
           toggleShowPhone() {

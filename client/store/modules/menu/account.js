@@ -5,7 +5,7 @@
 import lazyLoading from './lazyLoading'
 
 export default {
-  name: '账号管理',
+  name: '我的账号',
   meta: {
     icon: 'fa-user',
     expanded: false,
@@ -16,28 +16,19 @@ export default {
       name: '学生账号',
       path: '/account/stu',
       meta: {
-        label: '我的账号'
+        label: '学生账号'
       },
       limit: 2,
       component: lazyLoading('account/Stu')
     },
     {
-      name: '教师账号',
+      name: '管理员账号',
       path: '/account/teacher',
       meta: {
-        label: '我的账号'
+        label: '管理员账号'
       },
       limit: 4,
       component: lazyLoading('account/Teacher')
-    },
-    {
-      name: '所有账号',
-      path: '/account/all',
-      meta: {
-        label: '所有账号'
-      },
-      limit: 8,
-      component: lazyLoading('account/All')
     }
   ]
 }

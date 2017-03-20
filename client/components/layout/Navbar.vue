@@ -3,9 +3,9 @@
     <div class="hero-head">
       <nav class="nav">
         <div class="nav-left">
-          <a class="nav-item is-hidden-tablet" @click="toggleSidebar(!sidebar.opened)">
-            <i class="fa fa-bars" aria-hidden="true"></i>
-          </a>
+          <el-col :span="8" :offset="1">
+            <img src="../../assets/sys_logo.png" class="nav_sys_logo">
+          </el-col>
         </div>
         <div class="nav-center">
           <!--<a class="nav-item hero-brand" href="/">-->
@@ -23,10 +23,10 @@
             <div class="block login_bar">
               <div class="control is-horizontal">
                 <div class="control-label">
-                  <label class="label">施周勇</label>
+                  <label class="label">{{name}}</label>
                 </div>
                 <div class="btn_login">
-                  <button class="button">登出</button>
+                  <button class="button" @click="logout">登出</button>
                 </div>
               </div>
             </div>
@@ -40,6 +40,7 @@
 <script>
 import Tooltip from 'vue-bulma-tooltip'
 import { mapGetters, mapActions } from 'vuex'
+import Store from '../../views/store'
 
 export default {
 
@@ -49,7 +50,7 @@ export default {
 
   data () {
     return {
-      user: ''
+      name: ''
     }
   },
 
@@ -65,7 +66,18 @@ export default {
   methods: {
     ...mapActions([
       'toggleSidebar'
-    ])
+    ]),
+    getName() {
+      this.name = Store.fetchName()
+    },
+    logout () {
+      Store.clear()
+      location.href="http://division.front:8080/#/"
+    }
+  },
+
+  created () {
+    this.getName()
   }
 
 }
@@ -112,5 +124,10 @@ export default {
 
   .btn_login {
     margin-left: 20px;
+  }
+
+  .nav_sys_logo {
+    margin-top: 4px;
+    height: 46px!important;
   }
 </style>

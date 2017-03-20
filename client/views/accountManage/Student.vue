@@ -73,8 +73,8 @@
                     <el-col :span="6">
                       <el-form-item label="账号状态" prop="limit">
                         <el-select v-model="selectForm.limit" placeholder="请选择账号状态" @change="getAccounts(1)">
-                          <el-option label="激活" value="1"></el-option>
-                          <el-option label="禁止" value="-1"></el-option>
+                          <el-option label="已激活" value="3"></el-option>
+                          <el-option label="未激活" value="-1"></el-option>
                         </el-select>
                       </el-form-item>
                     </el-col>
@@ -100,7 +100,7 @@
                 </el-form>
               </el-collapse-item>
             </el-collapse>
-            <el-table :data="accounts" border style="width: 100%" @selection-change="handleSelectionChange" v-loading="loading2"
+            <el-table :data="accounts" border style="width: 100%" @selection-change="handleSelectionChange" v-loading="loading"
                       element-loading-text="拼命加载中">
               <el-table-column type="selection" width="45"/>
               <el-table-column type="index" label="序号" width="70"/>
@@ -155,7 +155,7 @@ export default {
         eachNum: null,
         limit: null
       },
-      loading2: true
+      loading: true
     }
   },
   computed:{
@@ -188,24 +188,24 @@ export default {
         this.getAccounts(index);
     },
     getAccounts:function(page){
-      this.loading2 = true
+      this.loading = true
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/system/account/stu?ss=' + ss, {'order': {'from': (page-1)*this.showItem, 'size':this.showItem}, 'filter':this.selectForm}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/system/account/stu?ss=' + ss, {'order': {'from': (page-1)*this.showItem, 'size':this.showItem}, 'filter':this.selectForm}).then(response => {
           this.accounts = response.data.accounts
           this.total = response.data.total
           this.allpage = Math.ceil(response.data.total / this.showItem);
-          this.loading2 = false
+          this.loading = false
       });
     },
     getGrades: function () {
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
           this.grades = response.data.systemInfoList
       })
     },
     getCategories: function () {
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
           this.categories = response.data.systemInfoList
       })
     },
@@ -239,7 +239,7 @@ export default {
         type: 'warning'
       }).then(() => {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/account/update/limit?ss=' + ss, {'numberList': this.numberList, 'limit': 1}).then(response => {
+        this.$http.post('http://division.backend:8888/jg/v/system/account/update/limit?ss=' + ss, {'numberList': this.numberList, 'limit': 3}).then(response => {
           if (response.data.retCode == 0) {
               this.getAccounts(1);
               this.successMsg("激活成功！");
@@ -269,7 +269,7 @@ export default {
         type: 'warning'
       }).then(() => {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/account/update/limit?ss=' + ss, {'numberList': this.numberList, 'limit': -1}).then(response => {
+        this.$http.post('http://division.backend:8888/jg/v/system/account/update/limit?ss=' + ss, {'numberList': this.numberList, 'limit': -1}).then(response => {
           if (response.data.retCode == 0) {
               this.successMsg("禁止成功！");
               this.getAccounts(1);
@@ -291,7 +291,7 @@ export default {
         type: 'warning'
       }).then(() => {
         var ss = Store.fetchSession();
-        this.$http.post('http://127.0.0.1:8888/jg/v/system/account/delete?ss=' + ss, {'numberList': this.numberList}).then(response => {
+        this.$http.post('http://division.backend:8888/jg/v/system/account/delete?ss=' + ss, {'numberList': this.numberList}).then(response => {
           if (response.data.retCode == 0) {
               this.successMsg("删除成功！");
               this.getAccounts(1);
@@ -308,13 +308,12 @@ export default {
     },
     //时间显示转换
     formatDate: function (row, column) {
-
       var createTime = new Date();
       createTime.setTime(row.createTime * 1000);
       return createTime.toLocaleString();
     },
     formatLimit: function (row, column) {
-      return row.limit >= 1 ? '已激活' : '未激活';
+      return row.limit >= 3 ? '已激活' : '未激活';
     },
     successMsg(msg) {
       this.$notify({

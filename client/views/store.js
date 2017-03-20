@@ -33,7 +33,9 @@ export default {
     },
     savePhone (phone) {
       window.localStorage.setItem(STORAGE_PHONE_KEY, JSON.stringify(phone))
+    },
+    clear () {
+      window.localStorage.clear()
     }
-
 
 }

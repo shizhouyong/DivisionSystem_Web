@@ -15,7 +15,7 @@
             </el-col>
             <el-col :span="16" :offset="4">
               <el-form-item>
-                <el-button type="success" @click="submitForm('ruleForm2')">提交</el-button>
+                <el-button type="info" @click="submitForm('ruleForm2')">提交</el-button>
                 <el-button @click="resetForm('ruleForm2')">重置</el-button>
               </el-form-item>
             </el-col>
@@ -76,7 +76,7 @@ import Message from 'vue-bulma-message'
         methods: {
           updatePassword: function () {
             var ss = Store.fetchSession()
-            this.$http.post('http://127.0.0.1:8888/jg/v/user/password/update?ss='+ss, {'oldPassword': this.ruleForm2.pass, 'newPassword': this.ruleForm2.checkPass}).then(response => {
+            this.$http.post('http://division.backend:8888/jg/v/user/password/update?ss='+ss, {'oldPassword': this.ruleForm2.pass, 'newPassword': this.ruleForm2.checkPass}).then(response => {
               var retCode = response.data.retCode;
               if (retCode === 0) {
                   alert("密码更新成功！");

@@ -13,13 +13,22 @@ export default {
   },
   children: [
     {
-      name: '分流操作',
-      path: '/shunt/oper',
+      name: '自动分流',
+      path: '/shunt/auto',
       meta: {
-        label: '分流操作'
+        label: '自动分流'
       },
       limit: 1,
-      component: lazyLoading('shunt/Oper')
+      component: lazyLoading('shunt/Auto')
+    },
+    {
+      name: '手动分流',
+      path: '/shunt/handle',
+      meta: {
+        label: '手动分流'
+      },
+      limit: 1,
+      component: lazyLoading('shunt/Handle')
     },
     {
       name: '分流计划',

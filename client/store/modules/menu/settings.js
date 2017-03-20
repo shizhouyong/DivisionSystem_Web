@@ -9,7 +9,7 @@ export default {
   meta: {
     icon: 'fa-cog',
     expanded: false,
-    limit: 8
+    limit: 4
   },
   children: [
     {
@@ -20,15 +20,6 @@ export default {
       },
       limit: 1,
       component: lazyLoading('settings/BasicInfo')
-    },
-    {
-      name: '教师信息',
-      path: '/settings/teacherInfo',
-      meta: {
-        label: '教师信息'
-      },
-      limit: 1,
-      component: lazyLoading('settings/TeacherInfo')
     }
   ]
 }

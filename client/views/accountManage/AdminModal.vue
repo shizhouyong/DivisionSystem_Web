@@ -1,0 +1,154 @@
+<template>
+  <modal :visible="visible" @close="close">
+    <article class="tile is-child box">
+      <div class="block">
+        <h4 class="title header-left">{{modalTitle}}教师账号</h4>
+        <el-form :label-position="labelPosition" :model="teacher" ref="teacher" label-width="140px" class="demo-dynamic" :rules="adminRules">
+          <el-row :gutter="24">
+            <el-col :span="22" :offset="1">
+              <el-col :span="12">
+                <el-form-item label="工号" prop="number">
+                  <el-input v-model="teacher.number" type="number"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="姓名" prop="name">
+                  <el-input v-model="teacher.name"/>
+                </el-form-item>
+              </el-col>
+            </el-col>
+          </el-row>
+          <el-row :gutter="24">
+            <el-col :span="8" :offset="8">
+              <el-form-item class="el-form-item-my">
+                <el-button type="info" @click="submitForm('teacher')">提交</el-button>
+                <el-button @click="resetForm('teacher')">重置</el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </div>
+    </article>
+  </modal>
+</template>
+<script>
+import Store from '../store'
+import { Modal } from 'vue-bulma-modal'
+export default {
+  components: {
+    Modal
+  },
+  props: {
+    visible: Boolean,
+    teacher: Object,
+    modalTitle: String
+  },
+  data() {
+    return {
+      labelPosition: 'top',
+      adminRules: {
+        name: [
+          {  required: true, message: '姓名不能为空！', trigger: 'blur' }
+        ],
+        number: [
+          {  type: 'number', required: true, message: '工号不能为空！', trigger: 'blur' }
+        ]
+      }
+    }
+  },
+  methods:{
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+    },
+    submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            var ss = Store.fetchSession();
+            this.$http.post('http://division.backend:8888/jg/v/system/teacher/add?ss=' + ss,
+              {'name': this.teacher.name,'number': this.teacher.number}).then(response => {
+                if (response.data.retCode === 0) {
+                    this.successMsg('保存成功！');
+                    this.$emit('close')
+                } else {
+                    this.errorMsg('保存失败！')
+                }
+            })
+
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+    successMsg(msg) {
+      this.$notify({
+        title: '成功',
+        message: msg,
+        type: 'success'
+      });
+    },
+    errorMsg(msg) {
+      this.$notify.error({
+        title: '错误',
+        message: msg
+      });
+    },
+    close () {
+      this.$emit('close')
+    }
+  },
+  created: function() {
+  }
+}
+</script>
+
+<style lang="scss">
+
+  .table-responsive {
+    display: block;
+    width: 100%;
+    min-height: .01%;
+    overflow-x: auto;
+  }
+  .tile.is-child {
+    width: 100%;
+  }
+
+  .collapse_header {
+    margin-bottom: 10px;
+  }
+
+  .pagination {
+    position: relative;
+
+  }
+  .pagination li{
+    display: inline-block;
+    margin:0 5px;
+  }
+  .pagination li a{
+    padding:.5rem 1rem;
+    display:inline-block;
+    border:1px solid #ddd;
+    background:#fff;
+    color:#1ACBA3;
+  }
+  .pagination li a:hover{
+    background:#eee;
+  }
+  .pagination li.active a{
+    background:#1ACBA3;
+    color:#fff;
+  }
+
+  .el-form-item-my {
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  .el-select {
+    width: 100%;
+  }
+
+</style>
+

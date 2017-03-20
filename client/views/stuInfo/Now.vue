@@ -70,8 +70,10 @@
                     </el-col>
                   </el-row>
                   <el-row :gutter="24">
-                    <el-col :span="5" :offset="19">
+                    <el-col :span="9" :offset="15">
                       <el-form-item class="el-form-item-my">
+                        <el-button type="info" @click="singleImport">单个导入</el-button>
+                        <el-button type="info" @click="batchImport">批量导入</el-button>
                         <el-button type="primary" @click="query">查询</el-button>
                         <el-button @click="resetForm('selectForm')">重置</el-button>
                       </el-form-item>
@@ -80,73 +82,20 @@
                 </el-form>
               </el-collapse-item>
             </el-collapse>
-            <el-table
-              :data="students"
-              border
-              style="width: 100%">
-              <el-table-column
-                prop="number"
-                label="学号"
-                width="160"
-                sortable>
-              </el-table-column>
-
-              <el-table-column
-                prop="name"
-                label="姓名"
-                width="100">
-              </el-table-column>
-              <el-table-column
-                prop="gPA"
-                label="平均学分绩点"
-                width="150"
-                sortable>
-              </el-table-column>
-              <el-table-column
-                prop="stuFrom"
-                label="生源地"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                prop="division"
-                label="文理科"
-                width="100">
-              </el-table-column>
-              <el-table-column
-                prop="entranceScore"
-                label="高考成绩"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                prop="admissionScore"
-                label="生源省高考录取线"
-                width="180">
-              </el-table-column>
-              <el-table-column
-                prop="sex"
-                label="性别"
-                width="80">
-              </el-table-column>
-              <el-table-column
-                prop="originalClass"
-                label="原班级"
-                width="180">
-              </el-table-column>
-              <el-table-column
-                prop="dorm"
-                label="寝室"
-                width="160">
-              </el-table-column>
-              <el-table-column
-                prop="note"
-                label="备注"
-                width="180">
-              </el-table-column>
-              <el-table-column
-                label="操作"
-                width="120">
+            <el-table :data="students" border style="width: 100%" v-loading="loading" element-loading-text="拼命加载中">
+              <el-table-column prop="number" label="学号" width="160" sortable/>
+              <el-table-column prop="name" label="姓名" width="100"/>
+              <el-table-column prop="gPA" label="平均学分绩点" width="150" sortable/>
+              <el-table-column prop="stuFrom" label="生源地" width="120"/>
+              <el-table-column prop="division" label="文理科" width="100"/>
+              <el-table-column prop="entranceScore" label="高考成绩" width="110"/>
+              <el-table-column prop="admissionScore" label="生源省高考录取线" width="170"/>
+              <el-table-column prop="sex" label="性别" width="80"/>
+              <el-table-column prop="originalClass" label="原班级" width="180"/>
+              <el-table-column prop="dorm" label="寝室" width="160"/>
+              <el-table-column prop="note" label="备注" width="100"/>
+              <el-table-column label="操作" width="120">
                 <template scope="scope">
-                  <el-button type="text" size="small">查看</el-button>
                   <el-button type="text" size="small">编辑</el-button>
                 </template>
               </el-table-column>
@@ -165,12 +114,19 @@
         </article>
       </div>
     </div>
+    <modal :visible="showModal" :type="addType" @close="closeModalBasic"></modal>
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
 import Store from '../store'
+import Modal from './ImportModal'
+
 export default {
+  components: {
+    Modal
+  },
   data:function(){
     return{
       current:1,
@@ -179,16 +135,20 @@ export default {
       students: [],
       grades: [],
       categories: [],
+      addType: 0,
       selectForm: {
-        number: '',
-        name: '',
-        originClass: '',
-        sex: '',
-        stuFrom: '',
-        division: '',
-        category: '',
-        grade: ''
-      }
+        number: null,
+        name: null,
+        originalClass: null,
+        sex: null,
+        stuFrom: null,
+        division: null,
+        category: null,
+        grade: null,
+        eachNum: null
+      },
+      showModal: false,
+      loading: true
     }
   },
   computed:{
@@ -221,35 +181,60 @@ export default {
       this.getStudents(index);
     },
     getStudents:function(page){
+      this.loading = true;
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/stuInfo/list?ss=' + ss, {'order': {'from': (page-1)*15, 'size':15}}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/stuInfo/list?ss=' + ss, {'order': {'from': (page-1)*this.showItem, 'size':this.showItem}, 'filter':this.selectForm}).then(response => {
           this.students = response.data.students
-          this.allpage = Math.ceil(response.data.total / 15)
+          this.total = response.data.total
+          this.allpage = Math.ceil(response.data.total / this.showItem);
+          this.loading = false
       });
     },
     getGrades: function () {
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'GRADE'}).then(response => {
           this.grades = response.data.systemInfoList
       })
     },
     getCategories: function () {
       var ss = Store.fetchSession();
-      this.$http.post('http://127.0.0.1:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
+      this.$http.post('http://division.backend:8888/jg/v/system/systemInfo/get?ss=' + ss, {'type': 'CATEGORY'}).then(response => {
           this.categories = response.data.systemInfoList
       })
+    },
+    batchImport () {
+      this.addType = 1;
+      this.openModalBasic();
+    },
+    singleImport () {
+      this.addType = 2;
+      this.openModalBasic();
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
     query() {
-      alert('提交');
+      this.getStudents(1)
+    },
+    openModalBasic () {
+      this.showModal = true
+    },
+
+    closeModalBasic () {
+      this.showModal = false
+    }
+  },
+  watch: {
+    showModal () {
+      if(!this.showModal) {
+        this.getStudents(1)
+      }
     }
   },
   created: function() {
     this.getGrades()
     this.getCategories()
-    this.getStudents()
+    this.getStudents(1)
   }
 }
 </script>
